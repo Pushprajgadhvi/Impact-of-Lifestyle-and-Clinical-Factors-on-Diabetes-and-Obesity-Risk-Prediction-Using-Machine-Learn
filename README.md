@@ -1,279 +1,237 @@
-# 🩺 Impact of Lifestyle and Clinical Factors on Diabetes and Obesity Risk
+# 🩺 Impact of Lifestyle and Clinical Factors on Diabetes and Obesity Risk Prediction
 
 ## 📌 Project Overview
 
-This project investigates the impact of lifestyle habits and clinical health indicators on the risk of developing **Diabetes** and **Obesity**. By combining statistical analysis, exploratory data analysis (EDA), machine learning techniques, and risk prediction models, the project aims to identify important factors that contribute to these chronic health conditions.
+This project focuses on predicting **Diabetes** and **Obesity** risk using Machine Learning techniques and healthcare indicators from the **CDC Diabetes Health Indicators Dataset**.
 
-The study utilizes healthcare data from publicly available sources and applies data science methodologies to analyze relationships between lifestyle behaviors, clinical measurements, and disease outcomes.
+The study investigates how lifestyle, demographic, and clinical factors such as BMI, Age, General Health, Physical Health, Mental Health, Education, and Income influence the likelihood of developing diabetes and obesity.
+
+The project follows a complete Machine Learning pipeline including data preprocessing, exploratory data analysis (EDA), class balancing using SMOTE, model training, evaluation, and performance comparison.
 
 ---
 
 ## 🎯 Objectives
 
-* Analyze the influence of lifestyle factors on Diabetes and Obesity risk.
-* Identify significant clinical indicators associated with disease occurrence.
-* Perform comprehensive Exploratory Data Analysis (EDA).
-* Compare multiple Machine Learning models for disease prediction.
-* Generate personalized risk predictions based on user-provided health information.
-* Visualize patterns and trends within healthcare datasets.
+* Predict Diabetes Risk using health indicators.
+* Predict Obesity Risk using BMI-based classification.
+* Analyze the impact of lifestyle and clinical factors on health outcomes.
+* Handle class imbalance using SMOTE.
+* Compare multiple Machine Learning algorithms.
+* Evaluate models using comprehensive performance metrics.
 
 ---
 
-## 📊 Dataset Information
+## 📊 Dataset
 
-This project primarily utilizes health-related datasets containing demographic, lifestyle, and clinical features such as:
+**Source:** CDC Diabetes Health Indicators Dataset
 
+The dataset contains demographic, lifestyle, and clinical information including:
+
+* BMI
 * Age
-* Gender
-* Body Mass Index (BMI)
-* Blood Pressure
-* Physical Activity
+* General Health
+* Physical Health
+* Mental Health
+* High Blood Pressure
+* High Cholesterol
 * Smoking Habits
-* Alcohol Consumption
-* General Health Status
-* Mental Health Indicators
-* Sleep Patterns
+* Physical Activity
+* Education
+* Income
 * Diabetes Status
-* Obesity Status
 
-### Data Sources
+### Additional Feature Engineering
 
-* CDC Diabetes Health Indicators Dataset
-* Public Healthcare Datasets from UCI Machine Learning Repository
-* Obesity-related Health Indicators Dataset
+An obesity target variable was created using:
+
+```python
+Obesity = BMI >= 30
+```
+
+Where:
+
+* 0 = Non-Obese
+* 1 = Obese
 
 ---
 
-## 🔬 Methodology
-
-### 1. Data Collection
-
-Datasets are fetched automatically using the `ucimlrepo` library, eliminating manual downloads and ensuring reproducibility.
-
-### 2. Data Preprocessing
-
-* Missing value handling
-* Feature selection
-* Label encoding
-* Data cleaning
-* Feature scaling using StandardScaler
-* Target variable generation
-
-### 3. Feature Engineering
-
-An obesity classification is generated using:
-
-BMI ≥ 30 → Obese
-
-This allows simultaneous analysis of:
-
-* Diabetes Risk
-* Obesity Risk
-* Combined Diabetes & Obesity Risk
-
-### 4. Exploratory Data Analysis (EDA)
+## 🔍 Exploratory Data Analysis (EDA)
 
 The project includes:
 
+### Correlation Analysis
+
 * Correlation Heatmaps
-* Feature Distribution Analysis
-* Risk Factor Visualization
-* Class Distribution Analysis
-* BMI Impact Analysis
-* Physical Activity Impact Analysis
-* Age-Based Risk Analysis
+* Feature Relationship Analysis
 
-### 5. Data Standardization
+### Distribution Analysis
 
-Visualization of feature distributions:
+* Diabetes Distribution
+* Obesity Distribution
+* BMI Distribution
+* Feature Density Plots
 
-* Before Scaling
-* After Scaling
+### Class Imbalance Visualization
 
-This demonstrates the effect of preprocessing on model performance.
+* Before SMOTE
+* After SMOTE
+
+---
+
+## ⚙️ Data Preprocessing
+
+The following preprocessing steps were performed:
+
+### Data Cleaning
+
+* Missing value inspection
+* Feature selection
+
+### Feature Scaling
+
+StandardScaler was applied to numerical features:
+
+```python
+from sklearn.preprocessing import StandardScaler
+```
+
+### Class Balancing
+
+SMOTE (Synthetic Minority Oversampling Technique) was used to balance minority classes.
+
+```python
+from imblearn.over_sampling import SMOTE
+```
+
+Benefits:
+
+* Reduces model bias
+* Improves minority class prediction
+* Enhances Recall and F1 Score
 
 ---
 
 ## 🤖 Machine Learning Models
 
-The following Machine Learning models are implemented and evaluated:
+The following algorithms were trained and evaluated:
 
-### Classification Models
+| Model                     | Purpose                       |
+| ------------------------- | ----------------------------- |
+| Logistic Regression       | Baseline Classification       |
+| Decision Tree             | Rule-Based Prediction         |
+| Random Forest             | Ensemble Learning             |
+| Gradient Boosting         | Boosting-Based Classification |
+| Extra Trees Classifier    | Randomized Ensemble Learning  |
+| K-Nearest Neighbors (KNN) | Distance-Based Classification |
+| Naive Bayes               | Probabilistic Classification  |
 
-* Logistic Regression
-* Decision Tree Classifier
-* Random Forest Classifier
-* Support Vector Machine (SVM)
-* K-Nearest Neighbors (KNN)
-* Gradient Boosting
-* XGBoost (Optional)
+---
 
-### Deep Learning Models
+## 📈 Model Evaluation Metrics
 
-* Artificial Neural Network (ANN)
-
-### Evaluation Metrics
-
-Models are evaluated using:
+Models were evaluated using:
 
 * Accuracy
 * Precision
 * Recall
-* F1-Score
+* F1 Score
 * ROC-AUC Score
 * Confusion Matrix
+* ROC Curve
 
 ---
 
-## 📈 Statistical Insights
+## 🔄 Project Workflow
 
-The notebook calculates:
-
-* Percentage of individuals with Diabetes
-* Percentage of individuals with Obesity
-* Percentage of individuals with both conditions
-* Feature correlations with disease outcomes
-* Population-level risk distributions
+```text
+CDC Health Dataset
+        │
+        ▼
+Data Cleaning
+        │
+        ▼
+Feature Engineering
+        │
+        ▼
+Exploratory Data Analysis
+        │
+        ▼
+Data Scaling
+        │
+        ▼
+SMOTE Balancing
+        │
+        ▼
+Model Training
+        │
+        ▼
+Model Evaluation
+        │
+        ▼
+Diabetes & Obesity Risk Prediction
+```
 
 ---
 
-## 🧠 Personalized Risk Prediction System
+## 📌 Key Findings
 
-A personalized risk calculator has been implemented that allows users to enter their own clinical and lifestyle information.
+* Class imbalance significantly affected prediction performance.
+* SMOTE improved minority class representation.
+* Ensemble models outperformed traditional models.
+* Lifestyle and health indicators showed strong correlations with diabetes and obesity risk.
+* Feature engineering enhanced predictive performance.
 
-The trained models estimate:
+---
 
-✅ Diabetes Risk (%)
+## 🛠️ Technologies Used
 
-✅ Obesity Risk (%)
+### Programming Language
 
-✅ Combined Diabetes & Obesity Risk (%)
+* Python
 
-This demonstrates how machine learning can support health-risk assessment.
+### Libraries
+
+```text
+NumPy
+Pandas
+Matplotlib
+Seaborn
+Scikit-Learn
+Imbalanced-Learn (SMOTE)
+SciPy
+```
+
+### Development Environment
+
+* Jupyter Notebook
+* VS Code
 
 ---
 
 ## 📂 Project Structure
 
 ```text
-├── Diabetes_Obesity_Risk_Analysis.ipynb
-├── datasets/
+📦 Diabetes-Obesity-Risk-Prediction
+│
+├── data/
+├── notebooks/
 ├── images/
 ├── models/
-├── README.md
-└── requirements.txt
+├── results/
+├── Diabetes_Obesity_Risk_Analysis.ipynb
+├── requirements.txt
+└── README.md
 ```
 
 ---
 
-## 🚀 Installation
+## 🚀 Future Improvements
 
-### Clone Repository
-
-```bash
-git clone https://github.com/your-username/Impact-of-Lifestyle-and-Clinical-Factors-on-Diabetes-and-Obesity-Risk.git
-```
-
-```bash
-cd Impact-of-Lifestyle-and-Clinical-Factors-on-Diabetes-and-Obesity-Risk
-```
-
-### Install Dependencies
-
-```bash
-pip install -r requirements.txt
-```
-
-Or install manually:
-
-```bash
-pip install ucimlrepo pandas numpy matplotlib seaborn scikit-learn
-```
-
----
-
-## ▶️ Running the Project
-
-1. Open the Jupyter Notebook.
-2. Run all cells sequentially.
-3. Explore EDA visualizations.
-4. Train machine learning models.
-5. Test the personalized risk calculator using custom input data.
-
-Supported Platforms:
-
-* Jupyter Notebook
-* Jupyter Lab
-* VS Code
-* Google Colab
-
----
-
-## 📷 Key Visualizations
-
-The project includes:
-
-* Correlation Heatmaps
-* Risk Distribution Charts
-* BMI Analysis Graphs
-* Physical Activity Comparisons
-* Feature Importance Graphs
-* Before vs After Scaling Distributions
-* Model Performance Comparisons
-
----
-
-## 🏥 Real-World Applications
-
-This project can be extended for:
-
-* Healthcare Analytics
-* Disease Risk Assessment Systems
-* Preventive Healthcare Solutions
-* Clinical Decision Support Systems
-* Public Health Research
-* AI-Powered Health Monitoring Platforms
-
----
-
-## ⚠️ Disclaimer
-
-This project is intended solely for:
-
-* Academic Research
-* Educational Purposes
-* Data Science Learning
-* Machine Learning Demonstration
-
-The generated predictions should **NOT** be considered medical advice, diagnosis, or treatment recommendations. Always consult qualified healthcare professionals for medical decisions.
-
----
-
-## 📝 Reference Note
-
-**Important:**
-
-This repository has been developed as a research and educational project to study the relationship between lifestyle factors, clinical indicators, Diabetes risk, and Obesity risk.
-
-The findings, visualizations, and predictive outputs generated by this project are intended for academic reference and demonstration purposes only. Results may vary depending on dataset quality, preprocessing techniques, and model configurations.
-
-Researchers, students, and practitioners are encouraged to use this work as a reference, extend the methodology, and validate findings using additional datasets and clinical studies.
-
----
-
-## 👨‍💻 Author
-
-**Pushpraj Gadhvi**
-
-Data Science | Machine Learning | Deep Learning | Healthcare Analytics
-
----
-
-## ⭐ Future Enhancements
-
-* Advanced Deep Learning Models
-* Explainable AI (SHAP/LIME)
+* Deep Learning (ANN) Implementation
+* Explainable AI using SHAP
+* Health Risk Scoring System
 * Real-Time Risk Prediction Web Application
-* Integration with Electronic Health Records (EHR)
-* Multi-Disease Risk Prediction Framework
-* Cloud Deployment and MLOps Pipeline
+* Deployment using Flask/FastAPI
+* Cloud Deployment and MLOps Integration
+
+---
