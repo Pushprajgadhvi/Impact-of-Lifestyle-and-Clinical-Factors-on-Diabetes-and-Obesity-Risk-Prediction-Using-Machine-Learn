@@ -1,0 +1,575 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full bg-slate-50">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI-Powered Diabetes & Obesity Risk Assessment Platform</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        medical: { 50: '#f0fdf4', 100: '#dcfce7', 500: '#22c55e', 600: '#16a34a', 700: '#15803d', 900: '#14532d' },
+                        brand: { 50: '#eff6ff', 500: '#3b82f6', 600: '#2563eb', 700: '#1d4ed8' }
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="h-full font-sans text-slate-800 antialiased flex flex-col min-h-screen" x-data="healthApp()">
+
+    <!-- Navigation Bar -->
+    <header class="bg-white border-b border-slate-200 sticky top-0 z-50 shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-brand-600 to-medical-500 flex items-center justify-center text-white shadow-md">
+                    <i class="fa-solid fa-heart-pulse text-xl"></i>
+                </div>
+                <div>
+                    <h1 class="text-lg font-bold text-slate-900 tracking-tight">HealthRisk AI <span class="text-xs px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 font-semibold ml-1">Clinical ML Engine</span></h1>
+                    <p class="text-xs text-slate-500">Diabetes & Obesity Predictive Analytics Platform</p>
+                </div>
+            </div>
+            <div class="flex items-center space-x-4">
+                <button @click="activeTab = 'assessment'" :class="activeTab === 'assessment' ? 'bg-brand-600 text-white shadow' : 'bg-slate-100 text-slate-700 hover:bg-slate-200'" class="px-4 py-2 rounded-lg text-sm font-medium transition">
+                    <i class="fa-solid fa-calculator mr-2"></i>Risk Assessment
+                </button>
+                <button @click="activeTab = 'insights'" :class="activeTab === 'insights' ? 'bg-brand-600 text-white shadow' : 'bg-slate-100 text-slate-700 hover:bg-slate-200'" class="px-4 py-2 rounded-lg text-sm font-medium transition">
+                    <i class="fa-solid fa-chart-pie mr-2"></i>Model Insights
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content Container -->
+    <main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
+
+        <!-- Assessment Tab -->
+        <div x-show="activeTab === 'assessment'" class="space-y-8">
+            <!-- Hero Banner -->
+            <div class="bg-gradient-to-r from-slate-900 via-blue-900 to-slate-900 text-white rounded-2xl p-8 shadow-xl relative overflow-hidden">
+                <div class="absolute right-0 bottom-0 opacity-10 translate-x-10 translate-y-10">
+                    <i class="fa-solid fa-stethoscope text-[250px]"></i>
+                </div>
+                <div class="max-w-2xl relative z-10">
+                    <span class="inline-flex items-center space-x-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-blue-500/30 text-blue-200 backdrop-blur-sm border border-blue-400/30 mb-4">
+                        <i class="fa-solid fa-circle-check text-emerald-400"></i>
+                        <span>Trained on CDC Health Indicators Dataset</span>
+                    </span>
+                    <h2 class="text-3xl font-extrabold tracking-tight sm:text-4xl mb-3">Predict Future Health Risks & Get Preventive Prescriptions</h2>
+                    <p class="text-slate-300 text-sm sm:text-base leading-relaxed">
+                        Input your clinical history, lifestyle habits, and biometric measurements to calculate real-time probabilities for diabetes and obesity risk. Receive actionable, personalized precautions and lifestyle prescriptions designed to optimize your long-term health.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Two Column Layout: Form & Results -->
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+                
+                <!-- Assessment Form (Left 7 Cols) -->
+                <div class="lg:col-span-7 bg-white rounded-2xl shadow-sm border border-slate-200 p-6 sm:p-8">
+                    <div class="flex items-center justify-between pb-6 border-b border-slate-100 mb-6">
+                        <div>
+                            <h3 class="text-lg font-bold text-slate-900">Patient Health Characteristics</h3>
+                            <p class="text-xs text-slate-500">Fill in your clinical and lifestyle parameters below</p>
+                        </div>
+                        <button @click="loadSampleData" type="button" class="text-xs font-medium text-brand-600 bg-brand-50 hover:bg-brand-100 px-3 py-1.5 rounded-lg transition border border-brand-200">
+                            <i class="fa-solid fa-wand-magic-sparkles mr-1"></i>Load Sample Profile
+                        </button>
+                    </div>
+
+                    <form @submit.prevent="submitAssessment" class="space-y-6">
+                        
+                        <!-- Section 1: Biometrics & Vitals -->
+                        <div>
+                            <h4 class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-3 flex items-center">
+                                <i class="fa-solid fa-weight-scale mr-2 text-brand-500"></i>1. Biometrics & Physical Metrics
+                            </h4>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-xs font-semibold text-slate-700 mb-1">Body Mass Index (BMI)</label>
+                                    <input type="number" step="0.1" x-model.number="form.BMI" required class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:ring-2 focus:ring-brand-500 focus:outline-none" placeholder="e.g. 26.5">
+                                    <span class="text-[10px] text-slate-400">Normal: 18.5 - 24.9 | Obese: ≥ 30</span>
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-semibold text-slate-700 mb-1">Age Category (1-13)</label>
+                                    <select x-model.number="form.Age" class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:ring-2 focus:ring-brand-500 focus:outline-none">
+                                        <option value="1">18-24 years</option>
+                                        <option value="3">30-34 years</option>
+                                        <option value="6">45-49 years</option>
+                                        <option value="9">60-64 years (Median)</option>
+                                        <option value="11">70-74 years</option>
+                                        <option value="13">80+ years</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-semibold text-slate-700 mb-1">Biological Sex</label>
+                                    <select x-model.number="form.Sex" class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:ring-2 focus:ring-brand-500 focus:outline-none">
+                                        <option value="0">Female</option>
+                                        <option value="1">Male</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-semibold text-slate-700 mb-1">General Health Status (1-5)</label>
+                                    <select x-model.number="form.GenHlth" class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:ring-2 focus:ring-brand-500 focus:outline-none">
+                                        <option value="1">1 - Excellent</option>
+                                        <option value="2">2 - Very Good</option>
+                                        <option value="3">3 - Good</option>
+                                        <option value="4">4 - Fair</option>
+                                        <option value="5">5 - Poor</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Section 2: Clinical History -->
+                        <div>
+                            <h4 class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-3 flex items-center">
+                                <i class="fa-solid fa-notes-medical mr-2 text-brand-500"></i>2. Clinical & Medical History
+                            </h4>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <div class="flex items-center justify-between p-3 rounded-lg border border-slate-200 bg-slate-50">
+                                    <span class="text-xs font-medium text-slate-700">High Blood Pressure</span>
+                                    <input type="checkbox" x-model.number="form.HighBP" :true-value="1" :false-value="0" class="w-4 h-4 text-brand-600 rounded border-slate-300 focus:ring-brand-500">
+                                </div>
+                                <div class="flex items-center justify-between p-3 rounded-lg border border-slate-200 bg-slate-50">
+                                    <span class="text-xs font-medium text-slate-700">High Cholesterol</span>
+                                    <input type="checkbox" x-model.number="form.HighChol" :true-value="1" :false-value="0" class="w-4 h-4 text-brand-600 rounded border-slate-300 focus:ring-brand-500">
+                                </div>
+                                <div class="flex items-center justify-between p-3 rounded-lg border border-slate-200 bg-slate-50">
+                                    <span class="text-xs font-medium text-slate-700">Cholesterol Checked (5 yrs)</span>
+                                    <input type="checkbox" x-model.number="form.CholCheck" :true-value="1" :false-value="0" class="w-4 h-4 text-brand-600 rounded border-slate-300 focus:ring-brand-500">
+                                </div>
+                                <div class="flex items-center justify-between p-3 rounded-lg border border-slate-200 bg-slate-50">
+                                    <span class="text-xs font-medium text-slate-700">History of Stroke</span>
+                                    <input type="checkbox" x-model.number="form.Stroke" :true-value="1" :false-value="0" class="w-4 h-4 text-brand-600 rounded border-slate-300 focus:ring-brand-500">
+                                </div>
+                                <div class="flex items-center justify-between p-3 rounded-lg border border-slate-200 bg-slate-50">
+                                    <span class="text-xs font-medium text-slate-700">Heart Disease or Attack</span>
+                                    <input type="checkbox" x-model.number="form.HeartDiseaseorAttack" :true-value="1" :false-value="0" class="w-4 h-4 text-brand-600 rounded border-slate-300 focus:ring-brand-500">
+                                </div>
+                                <div class="flex items-center justify-between p-3 rounded-lg border border-slate-200 bg-slate-50">
+                                    <span class="text-xs font-medium text-slate-700">Difficulty Walking</span>
+                                    <input type="checkbox" x-model.number="form.DiffWalk" :true-value="1" :false-value="0" class="w-4 h-4 text-brand-600 rounded border-slate-300 focus:ring-brand-500">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Section 3: Lifestyle & Habits -->
+                        <div>
+                            <h4 class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-3 flex items-center">
+                                <i class="fa-solid fa-person-walking mr-2 text-brand-500"></i>3. Lifestyle & Dietary Habits
+                            </h4>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <div class="flex items-center justify-between p-3 rounded-lg border border-slate-200 bg-slate-50">
+                                    <span class="text-xs font-medium text-slate-700">Physical Activity (Past 30 Days)</span>
+                                    <input type="checkbox" x-model.number="form.PhysActivity" :true-value="1" :false-value="0" class="w-4 h-4 text-brand-600 rounded border-slate-300 focus:ring-brand-500">
+                                </div>
+                                <div class="flex items-center justify-between p-3 rounded-lg border border-slate-200 bg-slate-50">
+                                    <span class="text-xs font-medium text-slate-700">Smoker (≥100 cigarettes life)</span>
+                                    <input type="checkbox" x-model.number="form.Smoker" :true-value="1" :false-value="0" class="w-4 h-4 text-brand-600 rounded border-slate-300 focus:ring-brand-500">
+                                </div>
+                                <div class="flex items-center justify-between p-3 rounded-lg border border-slate-200 bg-slate-50">
+                                    <span class="text-xs font-medium text-slate-700">Consume Fruit Daily</span>
+                                    <input type="checkbox" x-model.number="form.Fruits" :true-value="1" :false-value="0" class="w-4 h-4 text-brand-600 rounded border-slate-300 focus:ring-brand-500">
+                                </div>
+                                <div class="flex items-center justify-between p-3 rounded-lg border border-slate-200 bg-slate-50">
+                                    <span class="text-xs font-medium text-slate-700">Consume Vegetables Daily</span>
+                                    <input type="checkbox" x-model.number="form.Veggies" :true-value="1" :false-value="0" class="w-4 h-4 text-brand-600 rounded border-slate-300 focus:ring-brand-500">
+                                </div>
+                                <div class="flex items-center justify-between p-3 rounded-lg border border-slate-200 bg-slate-50">
+                                    <span class="text-xs font-medium text-slate-700">Heavy Alcohol Consumption</span>
+                                    <input type="checkbox" x-model.number="form.HvyAlcoholConsump" :true-value="1" :false-value="0" class="w-4 h-4 text-brand-600 rounded border-slate-300 focus:ring-brand-500">
+                                </div>
+                                <div class="flex items-center justify-between p-3 rounded-lg border border-slate-200 bg-slate-50">
+                                    <span class="text-xs font-medium text-slate-700">Healthcare Access / Coverage</span>
+                                    <input type="checkbox" x-model.number="form.AnyHealthcare" :true-value="1" :false-value="0" class="w-4 h-4 text-brand-600 rounded border-slate-300 focus:ring-brand-500">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Section 4: Socio-Economic & Health Days -->
+                        <div>
+                            <h4 class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-3 flex items-center">
+                                <i class="fa-solid fa-chart-line mr-2 text-brand-500"></i>4. Socio-Economic & Health Days
+                            </h4>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-xs font-semibold text-slate-700 mb-1">Poor Mental Health Days (0-30)</label>
+                                    <input type="number" min="0" max="30" x-model.number="form.MentHlth" required class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:ring-2 focus:ring-brand-500 focus:outline-none">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-semibold text-slate-700 mb-1">Poor Physical Health Days (0-30)</label>
+                                    <input type="number" min="0" max="30" x-model.number="form.PhysHlth" required class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:ring-2 focus:ring-brand-500 focus:outline-none">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-semibold text-slate-700 mb-1">Education Level (1-6)</label>
+                                    <select x-model.number="form.Education" class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:ring-2 focus:ring-brand-500 focus:outline-none">
+                                        <option value="1">Never attended / Kindergarten</option>
+                                        <option value="3">High School Graduate</option>
+                                        <option value="4">Some College / Technical</option>
+                                        <option value="6">College Graduate (4+ yrs)</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-semibold text-slate-700 mb-1">Income Level (1-8)</label>
+                                    <select x-model.number="form.Income" class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:ring-2 focus:ring-brand-500 focus:outline-none">
+                                        <option value="1">&lt; $10,000</option>
+                                        <option value="3">$20,000 - $25,000</option>
+                                        <option value="5">$35,000 - $50,000</option>
+                                        <option value="8">$75,000+</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Submit Button -->
+                        <div class="pt-4">
+                            <button type="submit" :disabled="loading" class="w-full bg-gradient-to-r from-brand-600 to-blue-600 hover:from-brand-700 hover:to-blue-700 text-white font-semibold py-3 px-6 rounded-xl shadow-md transition duration-200 flex items-center justify-center space-x-2">
+                                <span x-show="!loading"><i class="fa-solid fa-calculator mr-2"></i>Calculate Risk & Generate Prescription</span>
+                                <span x-show="loading" class="flex items-center space-x-2">
+                                    <i class="fa-solid fa-circle-notch fa-spin"></i>
+                                    <span>Processing Clinical ML Models...</span>
+                                </span>
+                            </button>
+                        </div>
+
+                    </form>
+                </div>
+
+                <!-- Results & Recommendations (Right 5 Cols) -->
+                <div class="lg:col-span-5 space-y-6">
+                    
+                    <!-- Empty State / Results Placeholder -->
+                    <div x-show="!hasResults" class="bg-white rounded-2xl shadow-sm border border-slate-200 p-8 text-center flex flex-col items-center justify-center h-full min-h-[400px]">
+                        <div class="w-16 h-16 rounded-full bg-blue-50 text-brand-600 flex items-center justify-center text-2xl mb-4">
+                            <i class="fa-solid fa-chart-line"></i>
+                        </div>
+                        <h3 class="text-base font-bold text-slate-900 mb-1">Awaiting Assessment</h3>
+                        <p class="text-xs text-slate-500 max-w-sm">
+                            Fill out your health characteristics on the left and click calculate to view your personalized risk probabilities, visual graph chart, and lifestyle prescription.
+                        </p>
+                    </div>
+
+                    <!-- Results Dashboard (Shown when hasResults is true) -->
+                    <div x-show="hasResults" x-transition class="space-y-6">
+                        
+                        <!-- Risk Summary Card with Graph -->
+                        <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 space-y-6">
+                            <div class="flex items-center justify-between pb-4 border-b border-slate-100">
+                                <h3 class="text-base font-bold text-slate-900">Risk Assessment Report</h3>
+                                <span class="text-xs font-semibold px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">
+                                    <i class="fa-solid fa-shield-halved mr-1"></i>ML Analyzed
+                                </span>
+                            </div>
+
+                            <!-- Chart.js Canvas Graph -->
+                            <div class="relative w-full h-48 bg-slate-50 rounded-xl p-2 border border-slate-100 flex items-center justify-center">
+                                <canvas id="riskChart"></canvas>
+                            </div>
+
+                            <!-- Diabetes Risk -->
+                            <div class="space-y-2">
+                                <div class="flex justify-between items-center text-sm">
+                                    <span class="font-medium text-slate-700">Diabetes Risk</span>
+                                    <span class="font-bold" :class="getRiskColorClass(results.predictions.diabetes_risk_level)" x-text="results.predictions.diabetes_risk_percentage + '% (' + results.predictions.diabetes_risk_level + ')'"></span>
+                                </div>
+                                <div class="w-full bg-slate-100 rounded-full h-3 overflow-hidden">
+                                    <div class="h-full rounded-full transition-all duration-500" :class="getProgressBarClass(results.predictions.diabetes_risk_level)" :style="'width: ' + results.predictions.diabetes_risk_percentage + '%'"></div>
+                                </div>
+                            </div>
+
+                            <!-- Obesity Risk -->
+                            <div class="space-y-2">
+                                <div class="flex justify-between items-center text-sm">
+                                    <span class="font-medium text-slate-700">Obesity Risk</span>
+                                    <span class="font-bold" :class="getRiskColorClass(results.predictions.obesity_risk_level)" x-text="results.predictions.obesity_risk_percentage + '% (' + results.predictions.obesity_risk_level + ')'"></span>
+                                </div>
+                                <div class="w-full bg-slate-100 rounded-full h-3 overflow-hidden">
+                                    <div class="h-full rounded-full transition-all duration-500" :class="getProgressBarClass(results.predictions.obesity_risk_level)" :style="'width: ' + results.predictions.obesity_risk_percentage + '%'"></div>
+                                </div>
+                            </div>
+
+                            <!-- Combined Risk -->
+                            <div class="space-y-2">
+                                <div class="flex justify-between items-center text-sm">
+                                    <span class="font-medium text-slate-700">Combined Comorbidity Risk</span>
+                                    <span class="font-bold" :class="getRiskColorClass(results.predictions.combined_risk_level)" x-text="results.predictions.combined_risk_percentage + '% (' + results.predictions.combined_risk_level + ')'"></span>
+                                </div>
+                                <div class="w-full bg-slate-100 rounded-full h-3 overflow-hidden">
+                                    <div class="h-full rounded-full transition-all duration-500" :class="getProgressBarClass(results.predictions.combined_risk_level)" :style="'width: ' + results.predictions.combined_risk_percentage + '%'"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Preventive Precautions & Lifestyle Prescription Card -->
+                        <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 space-y-6">
+                            <h3 class="text-base font-bold text-slate-900 flex items-center">
+                                <i class="fa-solid fa-prescription text-brand-600 mr-2"></i>Personalized Lifestyle Prescription
+                            </h3>
+
+                            <!-- Precautions -->
+                            <div class="space-y-2">
+                                <h4 class="text-xs font-bold uppercase tracking-wider text-amber-600 flex items-center">
+                                    <i class="fa-solid fa-triangle-exclamation mr-1.5"></i>Key Precautions
+                                </h4>
+                                <ul class="list-disc list-inside text-xs text-slate-600 space-y-1 bg-amber-50/50 p-3 rounded-lg border border-amber-100">
+                                    <template x-for="item in results.recommendations.precautions">
+                                        <li x-text="item"></li>
+                                    </template>
+                                </ul>
+                            </div>
+
+                            <!-- Dietary Plan -->
+                            <div class="space-y-2">
+                                <h4 class="text-xs font-bold uppercase tracking-wider text-emerald-600 flex items-center">
+                                    <i class="fa-solid fa-utensils mr-1.5"></i>Dietary Guidelines
+                                </h4>
+                                <ul class="list-disc list-inside text-xs text-slate-600 space-y-1 bg-emerald-50/50 p-3 rounded-lg border border-emerald-100">
+                                    <template x-for="item in results.recommendations.dietary_plan">
+                                        <li x-text="item"></li>
+                                    </template>
+                                </ul>
+                            </div>
+
+                            <!-- Exercise Plan -->
+                            <div class="space-y-2">
+                                <h4 class="text-xs font-bold uppercase tracking-wider text-blue-600 flex items-center">
+                                    <i class="fa-solid fa-person-running mr-1.5"></i>Exercise & Fitness Plan
+                                </h4>
+                                <ul class="list-disc list-inside text-xs text-slate-600 space-y-1 bg-blue-50/50 p-3 rounded-lg border border-blue-100">
+                                    <template x-for="item in results.recommendations.exercise_plan">
+                                        <li x-text="item"></li>
+                                    </template>
+                                </ul>
+                            </div>
+
+                            <!-- Clinical Advice -->
+                            <div class="space-y-2">
+                                <h4 class="text-xs font-bold uppercase tracking-wider text-purple-600 flex items-center">
+                                    <i class="fa-solid fa-user-doctor mr-1.5"></i>Clinical Consultations
+                                </h4>
+                                <ul class="list-disc list-inside text-xs text-slate-600 space-y-1 bg-purple-50/50 p-3 rounded-lg border border-purple-100">
+                                    <template x-for="item in results.recommendations.clinical_advice">
+                                        <li x-text="item"></li>
+                                    </template>
+                                </ul>
+                            </div>
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+        </div>
+
+        <!-- Insights Tab -->
+        <div x-show="activeTab === 'insights'" class="space-y-8" style="display: none;">
+            <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-8 space-y-6">
+                <div>
+                    <h3 class="text-xl font-bold text-slate-900">About the AI/ML Model & Dataset</h3>
+                    <p class="text-xs text-slate-500 mt-1">Understanding the predictive engine behind your health risk assessment</p>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 pt-4">
+                    <div class="p-5 rounded-xl border border-slate-200 bg-slate-50 space-y-2">
+                        <div class="w-10 h-10 rounded-lg bg-blue-100 text-brand-600 flex items-center justify-center text-lg font-bold">
+                            <i class="fa-solid fa-database"></i>
+                        </div>
+                        <h4 class="text-sm font-bold text-slate-900">CDC Health Survey Data</h4>
+                        <p class="text-xs text-slate-600 leading-relaxed">
+                            Trained on extensive behavioral and clinical survey indicators from the CDC Diabetes Health Indicators dataset (UCI ID: 891).
+                        </p>
+                    </div>
+
+                    <div class="p-5 rounded-xl border border-slate-200 bg-slate-50 space-y-2">
+                        <div class="w-10 h-10 rounded-lg bg-emerald-100 text-emerald-600 flex items-center justify-center text-lg font-bold">
+                            <i class="fa-solid fa-brain"></i>
+                        </div>
+                        <h4 class="text-sm font-bold text-slate-900">Random Forest Ensemble</h4>
+                        <p class="text-xs text-slate-600 leading-relaxed">
+                            Utilizes robust decision-tree ensemble classifiers optimized to evaluate complex non-linear interactions among lifestyle, BMI, and clinical factors.
+                        </p>
+                    </div>
+
+                    <div class="p-5 rounded-xl border border-slate-200 bg-slate-50 space-y-2">
+                        <div class="w-10 h-10 rounded-lg bg-purple-100 text-purple-600 flex items-center justify-center text-lg font-bold">
+                            <i class="fa-solid fa-heart-pulse"></i>
+                        </div>
+                        <h4 class="text-sm font-bold text-slate-900">Preventive Care Focus</h4>
+                        <p class="text-xs text-slate-600 leading-relaxed">
+                            Designed to empower individuals with early risk awareness and actionable lifestyle prescriptions to prevent chronic metabolic conditions.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t border-slate-200 mt-12 py-6 text-center text-xs text-slate-500">
+        <p>HealthRisk AI Predictive Platform • Developed for Major Project Sem 7 • Powered by Python ML & FastAPI</p>
+    </footer>
+
+    <!-- Alpine State Logic & Chart.js -->
+    <script>
+        function healthApp() {
+            return {
+                activeTab: 'assessment',
+                loading: false,
+                hasResults: false,
+                chartInstance: null,
+                form: {
+                    HighBP: 0,
+                    HighChol: 0,
+                    CholCheck: 1,
+                    BMI: 24.5,
+                    Smoker: 0,
+                    Stroke: 0,
+                    HeartDiseaseorAttack: 0,
+                    PhysActivity: 1,
+                    Fruits: 1,
+                    Veggies: 1,
+                    HvyAlcoholConsump: 0,
+                    AnyHealthcare: 1,
+                    NoDocbcCost: 0,
+                    GenHlth: 2,
+                    MentHlth: 2,
+                    PhysHlth: 1,
+                    DiffWalk: 0,
+                    Sex: 0,
+                    Age: 6,
+                    Education: 4,
+                    Income: 6
+                },
+                results: null,
+                loadSampleData() {
+                    this.form = {
+                        HighBP: 1,
+                        HighChol: 1,
+                        CholCheck: 1,
+                        BMI: 34.2,
+                        Smoker: 1,
+                        Stroke: 0,
+                        HeartDiseaseorAttack: 1,
+                        PhysActivity: 0,
+                        Fruits: 0,
+                        Veggies: 1,
+                        HvyAlcoholConsump: 0,
+                        AnyHealthcare: 1,
+                        NoDocbcCost: 0,
+                        GenHlth: 4,
+                        MentHlth: 12,
+                        PhysHlth: 15,
+                        DiffWalk: 1,
+                        Sex: 1,
+                        Age: 11,
+                        Education: 3,
+                        Income: 4
+                    };
+                },
+                async submitAssessment() {
+                    this.loading = true;
+                    try {
+                        const response = await fetch('/api/predict', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(this.form)
+                        });
+                        const data = await response.json();
+                        if (data.success) {
+                            this.results = data;
+                            this.hasResults = true;
+                            // Render chart after DOM updates
+                            this.$nextTick(() => {
+                                this.renderChart(data.predictions);
+                            });
+                        } else {
+                            alert('Prediction error: ' + (data.detail || 'Unknown error'));
+                        }
+                    } catch (err) {
+                        console.error(err);
+                        alert('Failed to connect to backend prediction server.');
+                    } finally {
+                        this.loading = false;
+                    }
+                },
+                renderChart(preds) {
+                    const ctx = document.getElementById('riskChart');
+                    if (!ctx) return;
+
+                    if (this.chartInstance) {
+                        this.chartInstance.destroy();
+                    }
+
+                    this.chartInstance = new Chart(ctx, {
+                        type: 'bar',
+                        data: {
+                            labels: ['Diabetes Risk', 'Obesity Risk', 'Combined Risk'],
+                            datasets: [{
+                                label: 'Risk Probability (%)',
+                                data: [
+                                    preds.diabetes_risk_percentage,
+                                    preds.obesity_risk_percentage,
+                                    preds.combined_risk_percentage
+                                ],
+                                backgroundColor: [
+                                    'rgba(59, 130, 246, 0.8)',
+                                    'rgba(16, 185, 129, 0.8)',
+                                    'rgba(239, 68, 68, 0.8)'
+                                ],
+                                borderColor: [
+                                    'rgb(37, 99, 235)',
+                                    'rgb(5, 150, 105)',
+                                    'rgb(220, 38, 38)'
+                                ],
+                                borderWidth: 1,
+                                borderRadius: 8
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            scales: {
+                                y: {
+                                    beginAtZero: true,
+                                    max: 100,
+                                    ticks: {
+                                        callback: function(value) {
+                                            return value + '%';
+                                        },
+                                        font: { size: 10 }
+                                    }
+                                },
+                                x: {
+                                    ticks: { font: { size: 10 } }
+                                }
+                            },
+                            plugins: {
+                                legend: { display: false }
+                            }
+                        }
+                    });
+                },
+                getRiskColorClass(level) {
+                    if (level === 'High') return 'text-red-600';
+                    if (level === 'Moderate') return 'text-amber-600';
+                    return 'text-emerald-600';
+                },
+                getProgressBarClass(level) {
+                    if (level === 'High') return 'bg-red-500';
+                    if (level === 'Moderate') return 'bg-amber-500';
+                    return 'bg-emerald-500';
+                }
+            }
+        }
+    </script>
+</body>
+</html>
